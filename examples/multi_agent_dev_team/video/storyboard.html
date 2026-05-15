@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Memory Core — Milan AI Week storyboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  html, body { background: #09090b; color: #fafafa; overflow: hidden; }
+  body { font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+
+  /* 1920x1080 stage, scaled to fit window */
+  .stage {
+    width: 1920px;
+    height: 1080px;
+    transform-origin: top left;
+    position: relative;
+  }
+
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.55;
+    pointer-events: none;
+  }
+
+  .section {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 120px 180px;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
+  .section.active { opacity: 1; pointer-events: auto; }
+
+  /* Animations — each only plays when section is active */
+  .section.active .fade-up { animation: fade-up 0.9s cubic-bezier(.2,.7,.2,1) both; }
+  .section.active .fade-up.d1 { animation-delay: 0.35s; }
+  .section.active .fade-up.d2 { animation-delay: 0.75s; }
+  .section.active .fade-up.d3 { animation-delay: 1.15s; }
+  .section.active .fade-up.d4 { animation-delay: 1.55s; }
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Count-up number — uses CSS counter via JS-driven --num */
+  .countup {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Pulse dot */
+  .pulse {
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; }
+    50% { opacity: .35; }
+  }
+
+  /* Footer signature */
+  .signature {
+    position: absolute;
+    bottom: 64px;
+    right: 96px;
+    font-size: 22px;
+    color: #a1a1aa;
+    letter-spacing: 0.04em;
+  }
+
+  /* Section indicator dots */
+  .dots {
+    position: absolute;
+    bottom: 48px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 14px;
+    z-index: 10;
+  }
+  .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.18);
+    transition: background 0.2s, transform 0.2s;
+  }
+  .dot.on { background: #c4b5fd; transform: scale(1.4); }
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage">
+
+  <!-- Decorative glow blobs -->
+  <div class="blob" style="width:760px;height:760px;background:#7c3aed;top:-180px;left:-160px"></div>
+  <div class="blob" style="width:620px;height:620px;background:#f59e0b;bottom:-200px;right:-160px;opacity:0.35"></div>
+  <div class="blob" style="width:520px;height:520px;background:#06b6d4;top:40%;left:55%;opacity:0.25"></div>
+
+  <!-- Section 1: Hook -->
+  <section class="section" data-s="1">
+    <div class="text-[28px] uppercase tracking-[0.32em] text-violet-300 fade-up">Memory Core</div>
+    <h1 class="mt-12 text-[96px] font-semibold leading-[1.05] tracking-tight fade-up d1 max-w-[1500px]">
+      Multi-agent dev teams burn tokens<br/>passing context through prompts.
+    </h1>
+    <p class="mt-10 text-[40px] text-zinc-400 fade-up d2">And lose it every session reset.</p>
+    <div class="mt-20 fade-up d3 inline-flex items-center gap-3 text-[24px] text-amber-300">
+      <span class="inline-block w-2.5 h-2.5 rounded-full bg-amber-300 pulse"></span>
+      <span>Built solo by Evan, 16 &mdash; out of China.</span>
+    </div>
+  </section>
+
+  <!-- Section 2: Live demo cue -->
+  <section class="section" data-s="2">
+    <div class="text-[28px] uppercase tracking-[0.32em] text-violet-300 fade-up">Live demo</div>
+    <h2 class="mt-14 text-[120px] font-semibold leading-[0.95] tracking-tight fade-up d1">
+      Three agents.<br/>One memory layer.
+    </h2>
+    <div class="mt-16 fade-up d2 grid grid-cols-3 gap-10 max-w-[1400px]">
+      <div class="rounded-2xl border border-indigo-400/30 bg-indigo-500/10 p-8">
+        <div class="text-indigo-300 text-[22px] font-semibold">planner</div>
+        <div class="text-zinc-400 text-[18px] mt-2">writes: plan</div>
+        <div class="text-zinc-500 text-[14px] mt-1">mimo-v2.5</div>
+      </div>
+      <div class="rounded-2xl border border-emerald-400/30 bg-emerald-500/10 p-8">
+        <div class="text-emerald-300 text-[22px] font-semibold">coder</div>
+        <div class="text-zinc-400 text-[18px] mt-2">writes: file artifacts</div>
+        <div class="text-zinc-500 text-[14px] mt-1">Qwen2.5-Coder-32B</div>
+      </div>
+      <div class="rounded-2xl border border-amber-400/30 bg-amber-500/10 p-8">
+        <div class="text-amber-300 text-[22px] font-semibold">reviewer</div>
+        <div class="text-zinc-400 text-[18px] mt-2">writes: review</div>
+        <div class="text-zinc-500 text-[14px] mt-1">mimo-v2.5</div>
+      </div>
+    </div>
+    <p class="mt-16 text-[28px] text-zinc-400 fade-up d3">
+      &rarr; <span class="text-violet-300 font-mono">memory-core.chinasourcingbridge.com</span>
+    </p>
+  </section>
+
+  <!-- Section 3: Tech differentiation -->
+  <section class="section" data-s="3">
+    <div class="text-[28px] uppercase tracking-[0.32em] text-violet-300 fade-up">Why this works</div>
+    <h2 class="mt-10 text-[80px] font-semibold leading-[1.05] tracking-tight fade-up d1">
+      Role-aware memory.<br/>Not prompts.
+    </h2>
+    <div class="mt-16 grid grid-cols-2 gap-20 max-w-[1500px]">
+      <div class="fade-up d2">
+        <div class="text-[22px] text-zinc-500 uppercase tracking-wider">LongMemEval-S</div>
+        <div class="countup text-[180px] font-semibold leading-none mt-2 text-emerald-300" id="num-1">R@10 = 99.4</div>
+        <div class="text-[22px] text-zinc-400 mt-3">SOTA retrieval &middot; verified eval</div>
+      </div>
+      <div class="fade-up d3">
+        <div class="text-[22px] text-zinc-500 uppercase tracking-wider">LoCoMo</div>
+        <div class="countup text-[180px] font-semibold leading-none mt-2 text-violet-300">88.8</div>
+        <div class="text-[22px] text-zinc-400 mt-3">R@10 &middot; published benchmark</div>
+      </div>
+    </div>
+    <p class="mt-14 text-[26px] text-zinc-400 fade-up d4">
+      10+ adapters &middot; pluggable backends &middot; Apache-2.0 eval suite &middot; production-shaped SDK
+    </p>
+  </section>
+
+  <!-- Section 4: Business / track fit -->
+  <section class="section" data-s="4">
+    <div class="text-[28px] uppercase tracking-[0.32em] text-violet-300 fade-up">Built for the Featherless track</div>
+    <h2 class="mt-10 text-[72px] font-semibold leading-[1.05] tracking-tight fade-up d1 max-w-[1500px]">
+      Domain-specialized. Async-first.<br/>Permissive. Production-shaped.
+    </h2>
+    <div class="mt-14 grid grid-cols-2 gap-x-20 gap-y-8 max-w-[1500px]">
+      <div class="fade-up d2 flex items-start gap-5">
+        <div class="text-emerald-400 text-[28px] mt-1">&#10003;</div>
+        <div>
+          <div class="text-[28px] font-medium">Domain</div>
+          <div class="text-[22px] text-zinc-400">Software dev teams &mdash; planner, coder, reviewer.</div>
+        </div>
+      </div>
+      <div class="fade-up d2 flex items-start gap-5">
+        <div class="text-emerald-400 text-[28px] mt-1">&#10003;</div>
+        <div>
+          <div class="text-[28px] font-medium">Async</div>
+          <div class="text-[22px] text-zinc-400">Agents communicate through namespaces, not chat turns.</div>
+        </div>
+      </div>
+      <div class="fade-up d3 flex items-start gap-5">
+        <div class="text-emerald-400 text-[28px] mt-1">&#10003;</div>
+        <div>
+          <div class="text-[28px] font-medium">Permissive</div>
+          <div class="text-[22px] text-zinc-400">MIT core + Apache-2.0 eval. Real OSS, not source-available.</div>
+        </div>
+      </div>
+      <div class="fade-up d3 flex items-start gap-5">
+        <div class="text-emerald-400 text-[28px] mt-1">&#10003;</div>
+        <div>
+          <div class="text-[28px] font-medium">Production-shaped</div>
+          <div class="text-[22px] text-zinc-400">REST API, SDK, 10+ backends, role-scoped namespaces.</div>
+        </div>
+      </div>
+    </div>
+    <p class="mt-14 text-[24px] text-zinc-400 fade-up d4">
+      Also Collaborative Systems &middot; Agentic Workflows.
+    </p>
+  </section>
+
+  <!-- Section 5: CTA -->
+  <section class="section" data-s="5">
+    <div class="text-[28px] uppercase tracking-[0.32em] text-violet-300 fade-up">Memory Core</div>
+    <h2 class="mt-10 text-[100px] font-semibold leading-[1.0] tracking-tight fade-up d1">
+      The memory layer<br/>for agent teams.
+    </h2>
+    <div class="mt-16 space-y-5 fade-up d2 font-mono text-[34px]">
+      <div class="flex items-center gap-5">
+        <span class="text-zinc-500">repo</span>
+        <span class="text-indigo-300">github.com/Evanyuan-builder/memory-core</span>
+      </div>
+      <div class="flex items-center gap-5">
+        <span class="text-zinc-500">demo</span>
+        <span class="text-violet-300">memory-core.chinasourcingbridge.com</span>
+      </div>
+    </div>
+    <div class="mt-20 fade-up d3 text-[28px] text-zinc-400">
+      Built solo by Evan, 16 &mdash; out of China. Open source, MIT.
+    </div>
+  </section>
+
+  <!-- Dots indicator -->
+  <div class="dots" id="dots"></div>
+
+</div>
+
+<script>
+const TOTAL = 5;
+let cur = 1;
+
+function show(n) {
+  cur = Math.max(1, Math.min(TOTAL, n));
+  document.querySelectorAll(".section").forEach(s => {
+    s.classList.toggle("active", String(cur) === s.dataset.s);
+  });
+  document.querySelectorAll("#dots .dot").forEach((d, i) => {
+    d.classList.toggle("on", i + 1 === cur);
+  });
+}
+
+function buildDots() {
+  const root = document.getElementById("dots");
+  for (let i = 0; i < TOTAL; i++) {
+    const d = document.createElement("div");
+    d.className = "dot";
+    d.addEventListener("click", () => show(i + 1));
+    root.appendChild(d);
+  }
+}
+
+function fitStage() {
+  const stage = document.getElementById("stage");
+  const sx = window.innerWidth / 1920;
+  const sy = window.innerHeight / 1080;
+  const s = Math.min(sx, sy);
+  stage.style.transform = `scale(${s})`;
+  // center within viewport
+  stage.style.left = ((window.innerWidth - 1920 * s) / 2) + "px";
+  stage.style.top  = ((window.innerHeight - 1080 * s) / 2) + "px";
+  stage.style.position = "absolute";
+}
+
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight" || e.key === " " || e.key === "ArrowDown") { e.preventDefault(); show(cur + 1); }
+  else if (e.key === "ArrowLeft" || e.key === "ArrowUp") { e.preventDefault(); show(cur - 1); }
+  else if (/^[1-5]$/.test(e.key)) { show(parseInt(e.key, 10)); }
+});
+
+window.addEventListener("resize", fitStage);
+buildDots();
+fitStage();
+show(1);
+</script>
+</body>
+</html>

@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Memory Core × Multi-Agent Dev Team</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .pulse { animation: pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .ns-planner   { border-color: #6366f1; background: #eef2ff; }
+  .ns-coder     { border-color: #10b981; background: #ecfdf5; }
+  .ns-reviewer  { border-color: #f59e0b; background: #fffbeb; }
+  .ns-bootstrap { border-color: #94a3b8; background: #f8fafc; }
+  pre { white-space: pre-wrap; word-break: break-word; }
+</style>
+</head>
+<body class="bg-zinc-50 text-zinc-900 min-h-screen">
+<div class="max-w-7xl mx-auto p-6">
+
+  <!-- Business-value hook for enterprise judges -->
+  <div class="mb-5 rounded-lg border border-indigo-200 bg-gradient-to-r from-indigo-50 via-violet-50 to-amber-50 px-5 py-4">
+    <div class="text-[10px] uppercase tracking-widest text-indigo-600 font-semibold mb-1.5">For engineering teams running agents</div>
+    <p class="text-sm font-medium text-zinc-900 leading-snug">Multi-agent dev teams burn tokens passing context through prompts — and lose it every session reset.</p>
+    <p class="mt-1.5 text-sm text-zinc-600 leading-snug">Memory Core is the role-aware memory layer: planner, coder and reviewer share knowledge through namespaces, not prompt bloat. Open source, MIT.</p>
+    <div class="mt-2.5 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-zinc-500">
+      <span><b class="text-zinc-900">R@10 = 99.4</b> on LongMemEval-S</span>
+      <span><b class="text-zinc-900">88.8</b> on LoCoMo</span>
+      <span>10+ adapters &middot; pluggable backends</span>
+      <span>Apache-2.0 eval suite</span>
+    </div>
+  </div>
+
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="text-2xl font-semibold tracking-tight">Multi-Agent Dev Team</h1>
+      <p class="text-sm text-zinc-500">planner &middot; coder &middot; reviewer &mdash; sharing Memory Core, not prompts.</p>
+    </div>
+    <a class="text-xs text-zinc-400 hover:text-zinc-700" href="https://github.com/Evanyuan-builder/memory-core" target="_blank">GitHub &rarr;</a>
+  </header>
+
+  <div class="flex gap-2 mb-5">
+    <input id="task" class="flex-1 rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200"
+           value="Add a dark mode toggle to the settings page." />
+    <button id="run" class="rounded-md bg-zinc-900 text-white px-4 py-2 text-sm hover:bg-zinc-700 disabled:opacity-50">Run episode</button>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4">
+    <!-- Agents column -->
+    <section class="col-span-3">
+      <h2 class="text-xs uppercase tracking-wide text-zinc-500 mb-2">Agents</h2>
+      <div class="space-y-3" id="agents">
+        <!-- agent cards injected -->
+      </div>
+    </section>
+
+    <!-- Memory Core timeline -->
+    <section class="col-span-6">
+      <h2 class="text-xs uppercase tracking-wide text-zinc-500 mb-2 flex items-center justify-between">
+        <span>Memory Core timeline</span>
+        <span class="text-zinc-400 normal-case">role-aware memory layer</span>
+      </h2>
+      <div id="timeline" class="space-y-2 max-h-[70vh] overflow-y-auto pr-1"></div>
+    </section>
+
+    <!-- Outputs -->
+    <section class="col-span-3">
+      <h2 class="text-xs uppercase tracking-wide text-zinc-500 mb-2">Outputs</h2>
+      <div id="outputs" class="space-y-3"></div>
+    </section>
+  </div>
+</div>
+
+<script>
+const AGENTS = [
+  { id: "bootstrap", label: "bootstrap (seed)", llm: "—", role: "context" },
+  { id: "planner",   label: "planner",          llm: "mimo-v2.5",            role: "plan" },
+  { id: "coder",     label: "coder",            llm: "qwen2.5-coder-32b",    role: "patch" },
+  { id: "reviewer",  label: "reviewer",         llm: "mimo-v2.5",            role: "review" },
+];
+
+const NS_COLOR = {
+  planner: "ns-planner", coder: "ns-coder", reviewer: "ns-reviewer", bootstrap: "ns-bootstrap"
+};
+
+function renderAgents(state) {
+  const root = document.getElementById("agents");
+  root.innerHTML = "";
+  AGENTS.forEach(a => {
+    const s = state[a.id] || "idle";
+    const dot = s === "running" ? "bg-amber-500 pulse" : s === "done" ? "bg-emerald-500" : "bg-zinc-300";
+    root.insertAdjacentHTML("beforeend", `
+      <div class="rounded-md border border-zinc-200 bg-white p-3">
+        <div class="flex items-center gap-2">
+          <span class="inline-block w-2.5 h-2.5 rounded-full ${dot}"></span>
+          <span class="font-medium text-sm">${a.label}</span>
+        </div>
+        <div class="mt-1 text-xs text-zinc-500">LLM: ${a.llm}</div>
+        <div class="text-xs text-zinc-500">writes: ${a.role}</div>
+        <div class="text-[10px] text-zinc-400 mt-1">state: ${s}</div>
+      </div>
+    `);
+  });
+}
+
+// Each agent reads a fixed set of namespaces — encoded here so the timeline
+// can show the actual data flow, not just writes.
+const READS_BY_TYPE = {
+  context:  [],                          // bootstrap seeds files, reads nothing
+  plan:     ["bootstrap"],               // planner reads project files
+  artifact: ["planner", "bootstrap"],    // coder reads plan + files
+  review:   ["planner", "coder"],        // reviewer reads plan + diffs
+};
+
+function pushTimeline(m) {
+  const root = document.getElementById("timeline");
+  const cls = NS_COLOR[m.namespace] || "ns-bootstrap";
+  const reads = READS_BY_TYPE[m.type] || [];
+  const readsHtml = reads.length
+    ? `<span class="text-zinc-400">&#9671; reads ${reads.map(r => `<b class="text-zinc-600">${r}</b>`).join(" + ")}</span>`
+    : `<span class="text-zinc-300">&#9671; reads &mdash;</span>`;
+  root.insertAdjacentHTML("afterbegin", `
+    <div class="rounded border-l-4 ${cls} px-3 py-2 text-sm">
+      <div class="text-[10px] uppercase tracking-wide flex items-center justify-between gap-2">
+        <span class="text-zinc-700">&#9670; <b>${m.namespace || "?"}</b> writes &middot; type=${m.type || "?"}</span>
+        ${readsHtml}
+      </div>
+      <pre class="mt-1 text-[13px] leading-snug">${escapeHtml(m.content || "")}</pre>
+    </div>
+  `);
+}
+
+// Parse coder's [FILE: path]\n...\n[/FILE] blocks into discrete file cards.
+function parseFileBlocks(content) {
+  const re = /\[FILE:\s*([^\]]+)\]\s*\n([\s\S]*?)\n\[\/FILE\]/g;
+  const out = [];
+  let match;
+  while ((match = re.exec(content)) !== null) {
+    out.push({ path: match[1].trim(), body: match[2] });
+  }
+  return out;
+}
+
+function setOutput(agent, content) {
+  const root = document.getElementById("outputs");
+  const id = `out-${agent}`;
+  const existing = document.getElementById(id);
+
+  let body;
+  if (agent === "coder") {
+    const files = parseFileBlocks(content);
+    if (files.length > 0) {
+      body = `
+        <div class="text-[10px] text-emerald-700 mb-2">${files.length} file${files.length > 1 ? "s" : ""} written via [FILE] blocks</div>
+        <div class="space-y-2">
+          ${files.map(f => `
+            <div class="rounded border border-emerald-200 bg-emerald-50/40 overflow-hidden">
+              <div class="px-2.5 py-1 bg-emerald-100/60 border-b border-emerald-200 text-[11px] font-mono text-emerald-900 flex items-center justify-between">
+                <span class="truncate">${escapeHtml(f.path)}</span>
+                <span class="text-emerald-600 text-[9px] uppercase tracking-wide shrink-0 ml-2">new</span>
+              </div>
+              <pre class="px-2.5 py-1.5 text-[11px] leading-snug overflow-x-auto bg-white">${escapeHtml(f.body)}</pre>
+            </div>
+          `).join("")}
+        </div>
+      `;
+    } else {
+      body = `<pre class="text-[12px] leading-snug">${escapeHtml(content)}</pre>`;
+    }
+  } else {
+    body = `<pre class="text-[12px] leading-snug">${escapeHtml(content)}</pre>`;
+  }
+
+  const html = `
+    <div id="${id}" class="rounded-md border border-zinc-200 bg-white p-3">
+      <div class="text-[10px] uppercase tracking-wide text-zinc-500 mb-1">${agent}</div>
+      ${body}
+    </div>
+  `;
+  if (existing) existing.outerHTML = html;
+  else root.insertAdjacentHTML("beforeend", html);
+}
+
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+async function refreshTimeline() {
+  // Pull latest memories from each namespace and render most-recent-first.
+  // Use the current task as the search query so vector retrieval has signal.
+  const q = document.getElementById("task").value || "settings dark mode toggle plan diff review";
+  const namespaces = ["bootstrap", "planner", "coder", "reviewer"];
+  const all = [];
+  for (const ns of namespaces) {
+    try {
+      const r = await fetch(`/api/memories?q=${encodeURIComponent(q)}&namespace=${ns}&top_k=10`);
+      const j = await r.json();
+      j.memories.forEach(m => all.push({ ...m, namespace: ns }));
+    } catch (e) {}
+  }
+  document.getElementById("timeline").innerHTML = "";
+  all.reverse().forEach(pushTimeline);
+}
+
+const state = {};
+let running = false;
+
+async function runEpisode() {
+  if (running) return;
+  running = true;
+  document.getElementById("run").disabled = true;
+  document.getElementById("outputs").innerHTML = "";
+  AGENTS.forEach(a => state[a.id] = "idle");
+  renderAgents(state);
+
+  const task = document.getElementById("task").value;
+  const r = await fetch("/api/run", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ task }),
+  });
+  const reader = r.body.getReader();
+  const dec = new TextDecoder();
+  let buf = "";
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buf += dec.decode(value, { stream: true });
+    const parts = buf.split("\n\n");
+    buf = parts.pop();
+    for (const p of parts) {
+      const line = p.replace(/^data:\s*/, "").trim();
+      if (!line) continue;
+      let evt;
+      try { evt = JSON.parse(line); } catch { continue; }
+      if (evt.kind === "status") {
+        state[evt.agent] = evt.state;
+        renderAgents(state);
+        await refreshTimeline();
+      } else if (evt.kind === "output") {
+        setOutput(evt.agent, evt.content);
+      }
+    }
+  }
+  await refreshTimeline();
+  running = false;
+  document.getElementById("run").disabled = false;
+}
+
+renderAgents(state);
+refreshTimeline();
+document.getElementById("run").addEventListener("click", runEpisode);
+</script>
+</body>
+</html>
