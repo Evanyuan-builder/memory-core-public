@@ -84,8 +84,9 @@ literally Memory Core's design pillars:
   namespace scoping primitives encode roles for an org, not a chat user.
 - **Async-first**: agents communicate through namespaces, not chat turns.
   No agent is blocked on another agent's prompt being read.
-- **Permissive**: MIT core + Apache-2.0 evaluation harness. Real open
-  source, not source-available.
+- **Permissive**: Apache-2.0 SDK + Apache-2.0 evaluation harness. Real
+  open ecosystem — same publishing pattern as RoleCore and EvanCore in
+  our substrate stack (open verification, open interface, closed core).
 - **Production-shaped**: REST API, Python SDK, 10+ pluggable backends,
   CI 7/7 green, 369 unit + 99 e2e tests on v1.0.0.
 
