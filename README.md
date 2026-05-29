@@ -3,7 +3,7 @@
 > Multi-agent dev teams burn tokens passing context through prompts — and lose it every session reset.
 > Memory Core fixes that with role-scoped namespaces.
 
-This repository is the **public showcase** for [Memory Core](https://memory-core.chinasourcingbridge.com), a role-aware memory layer for multi-agent systems. It is the **AI Agent Olympics 2026 / Milan AI Week** hackathon submission for the **Featherless** track (also Collaborative Systems and Agentic Workflows).
+This repository is the **public showcase** for **Memory Core**, a role-aware memory layer for multi-agent systems. It is the **AI Agent Olympics 2026 / Milan AI Week** hackathon submission for the **Featherless** track (also Collaborative Systems and Agentic Workflows).
 
 ## What's in here
 
@@ -25,11 +25,14 @@ Reproducible from the public [memory-core-eval](https://github.com/Evanyuan-buil
 
 Cross-restart determinism is a verified property at the same revision — zero question flips across runs.
 
-## Live demo
+## Demo
 
-[**memory-core.chinasourcingbridge.com**](https://memory-core.chinasourcingbridge.com)
+The hosted interactive demo — three role-scoped LLM agents (planner: `mimo-v2.5`, coder: `Qwen2.5-Coder-32B-Instruct` via Featherless, reviewer: `mimo-v2.5`) collaborating on a real coding task through the memory layer — ran live for the AI Agent Olympics / Milan AI Week and is currently offline.
 
-Click *Run episode* and watch three real LLM agents (planner: `mimo-v2.5`, coder: `Qwen2.5-Coder-32B-Instruct` via Featherless, reviewer: `mimo-v2.5`) collaborate on a real coding task ("add a dark-mode toggle to a Next.js settings page"). Each agent reads only its own role's prompt — the shared substrate is the memory layer.
+What you can verify right now, with no access to the engine:
+
+- **Reproduce the benchmarks** with the open [memory-core-eval](https://github.com/Evanyuan-builder/memory-core-eval) harness (`pip install memory-core-eval`).
+- **Read the code** for [`examples/cross_project_knowledge`](examples/cross_project_knowledge) (one developer's cross-project engineering brain) and [`examples/multi_agent_dev_team`](examples/multi_agent_dev_team) (the three-agent demo) to see exactly how the memory layer is used.
 
 ## Open ecosystem, closed core
 
@@ -65,11 +68,11 @@ pip install -e .
 # Run the demo
 cd examples/multi_agent_dev_team
 cp .env.example .env  # add your Featherless + Xiaomi MiMo API keys
-export MC_API_URL=https://memory-core.chinasourcingbridge.com  # or your own
+export MC_API_URL=http://127.0.0.1:8001  # point at your own Memory Core API
 python run_demo.py
 ```
 
-For end-to-end interactive runs with the live UI, see the [live demo](https://memory-core.chinasourcingbridge.com) — no setup required.
+The hosted interactive UI is currently offline (it ran live for the hackathon). To verify Memory Core without the engine, reproduce the benchmarks with the open [memory-core-eval](https://github.com/Evanyuan-builder/memory-core-eval) harness.
 
 ## Featherless track fit
 

@@ -25,7 +25,7 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://memory-core.chinasourcingbridge.com"
+Homepage = "https://github.com/Evanyuan-builder/memory-core-public"
 Repository = "https://github.com/Evanyuan-builder/memory-core-public"
 "Eval Harness" = "https://github.com/Evanyuan-builder/memory-core-eval"
 
