@@ -22,6 +22,13 @@ The code is the same code; only the corpus is swapped.
 
 ## Run it
 
+> **The retrieval engine is closed-core.** The commands below need a running
+> Memory Core API — your own self-hosted instance (the hosted demo is currently
+> offline). If you don't have the engine, the open *and* runnable thing in this
+> stack is the [eval harness](https://github.com/Evanyuan-builder/memory-core-eval)
+> (`pip install memory-core-eval`): read this app's code below to see the API
+> surface, and run the harness to verify the retrieval method end-to-end.
+
 ```bash
 # 1. Start a Memory Core API (from the engine repo): `make api`  → 127.0.0.1:8001
 #    or point MEMORY_CORE_URL at your own deployment.
