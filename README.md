@@ -20,8 +20,8 @@ Reproducible from the public [memory-core-eval](https://github.com/Evanyuan-buil
 
 | Benchmark | Memory Core R@10 | Published anchor R@10 |
 |---|---:|---:|
-| LongMemEval-S (n=500) | **98.9** | 97.9 (Hybrid-RRF) |
-| LoCoMo (n=500) | **88.8** | 85.0 (Hybrid-RRF) |
+| LongMemEval-S (n=500) | **99.6** | 97.9 (Hybrid-RRF) |
+| LoCoMo (n=500) | **89.0** | 85.0 (Hybrid-RRF) |
 
 Cross-restart determinism is a verified property at the same revision — zero question flips across runs.
 
